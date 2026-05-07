@@ -37,6 +37,7 @@ Visit http://localhost:8000/docs for Swagger UI.
 - `POST /upload/text` accepts text, embeds chunks with OpenAI, and stores vectors in Weaviate.
 - `POST /upload/pdf` accepts a PDF upload, extracts text, embeds chunks with OpenAI, and stores vectors in Weaviate.
 - `POST /search` accepts a human question, embeds it with the same model, and returns semantic matches from Weaviate.
+- `POST /search/hybrid` combines keyword search and vector search. Use `alpha` from `0` to `1` to tune keyword vs vector weight.
 - `GET /documents` lists stored chunks.
 - On startup, an empty `Doc` collection is seeded with three 3072-dimensional sample vectors.
 - `DELETE /documents/{doc_id}` deletes one stored chunk by UUID.

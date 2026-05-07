@@ -70,6 +70,10 @@ class SearchIn(BaseModel):
     limit: int = Field(5, ge=1, le=25)
 
 
+class HybridSearchIn(SearchIn):
+    alpha: float = Field(0.5, ge=0.0, le=1.0)
+
+
 def get_collection():
     if weaviate_client is None:
         raise HTTPException(status_code=503, detail="Weaviate client is not ready")
@@ -322,6 +326,37 @@ def search(payload: SearchIn):
                 "source": obj.properties.get("source"),
                 "chunk_index": obj.properties.get("chunk_index"),
                 "distance": obj.metadata.distance,
+            }
+            for obj in res.objects
+        ],
+    }
+
+
+@app.post("/search/hybrid")
+def hybrid_search(payload: HybridSearchIn):
+    query_vector = embed_texts([payload.question])[0]
+    collection = get_collection()
+
+    res = collection.query.hybrid(
+        query=payload.question,
+        vector=query_vector,
+        alpha=payload.alpha,
+        limit=payload.limit,
+        query_properties=["text", "source"],
+        return_metadata=MetadataQuery(score=True, explain_score=True),
+    )
+
+    return {
+        "question": payload.question,
+        "alpha": payload.alpha,
+        "results": [
+            {
+                "id": str(obj.uuid),
+                "text": obj.properties.get("text"),
+                "source": obj.properties.get("source"),
+                "chunk_index": obj.properties.get("chunk_index"),
+                "score": obj.metadata.score,
+                "explain_score": obj.metadata.explain_score,
             }
             for obj in res.objects
         ],
