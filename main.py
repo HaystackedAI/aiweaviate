@@ -14,6 +14,27 @@ from wv.core.wvclient import get_client
 from wv.schema.wvschema import create_schema
 
 
+def load_env_file(path: str = ".env"):
+    if not os.path.exists(path):
+        return
+
+    with open(path, encoding="utf-8") as env_file:
+        for raw_line in env_file:
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip("\"'")
+
+            if key:
+                os.environ[key] = value
+
+
+load_env_file()
+
+
 COLLECTION = "Doc"
 EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-large")
 EXPECTED_VECTOR_DIM = 3072
