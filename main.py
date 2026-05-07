@@ -1,11 +1,21 @@
-# main.py
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from wv.core.wvclient import get_client
 import uuid
 
-app = FastAPI()
+client = get_client()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    client.close()
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,7 +24,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = get_client()
 COLLECTION = "Doc"
 
 
@@ -81,7 +90,3 @@ def search(vector: list[float]):
         for obj in res.objects
     ]
 
-
-@app.on_event("shutdown")
-def shutdown():
-    client.close()
