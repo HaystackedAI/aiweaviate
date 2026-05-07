@@ -13,7 +13,7 @@ try:
 
     insert_doc(
         client,
-        "Sanofi builds biomedical AI systems",
+        "Kevin is best!",
         "doc1",
         [0.1, 0.2, 0.3]
     )
