@@ -15,8 +15,7 @@ from wv.schema.wvschema import create_schema
 
 
 def load_env_file(path: str = ".env"):
-    if not os.path.exists(path):
-        return
+    if not os.path.exists(path):return
 
     with open(path, encoding="utf-8") as env_file:
         for raw_line in env_file:
