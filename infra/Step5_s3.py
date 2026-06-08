@@ -1,7 +1,7 @@
 REDSHIFT_NAMESPACE= "sds-ecommerce-0029"
 REDSHIFT_WORKGROUP= "sds-ecommerce-wg-0029"
 REDSHIFT_DATABASE= "sds-ecommerce"
-# S3 Bucket: sds-ecommerce-redshift-0029
+S3_BUCKET= "sds-ecommerce-redshift-0029"
 # Created role RedshiftS3AccessRole-0029
 redshift_role_arn = "arn:aws:iam::822206589627:role/RedshiftS3AccessRole-0029"
 WorkgroupARN = "arn:aws:redshift-serverless:us-east-1:822206589627:workgroup/26b8362e-d554-457f-8173-ce038691abc5"
@@ -11,85 +11,27 @@ import os, requests, json, time
 from utils.structured_knowledge_base import BedrockStructuredKnowledgeBase
 from aws_clients import aws
 
-def create_redshift_workgroup():
-    """Create Redshift Serverless workgroup"""
+def create_s3_bucket():
+    """Create S3 bucket for data staging"""
     try:
-        # Check if workgroup already exists
+        aws.s3_client.head_bucket(Bucket=S3_BUCKET)
+        print(f'Bucket {S3_BUCKET} already exists')
+    except:
         try:
-            response = aws.redshift_client.get_workgroup(workgroupName=REDSHIFT_WORKGROUP)
-            print(f'Workgroup {REDSHIFT_WORKGROUP} already exists')
-            return response['workgroup']
-        except aws.redshift_client.exceptions.ResourceNotFoundException:
-            print(f'Creating workgroup {REDSHIFT_WORKGROUP}...')
-        
-        # Create the workgroup
-        response = aws.redshift_client.create_workgroup(
-            workgroupName=REDSHIFT_WORKGROUP,
-            namespaceName=REDSHIFT_NAMESPACE,
-            baseCapacity=8,  # Minimum base capacity
-            enhancedVpcRouting=False,
-            publiclyAccessible=True,
-            configParameters=[
-                {
-                    'parameterKey': 'enable_user_activity_logging',
-                    'parameterValue': 'true'
-                }
-            ]
-        )
-        
-        print(f'Created workgroup {REDSHIFT_WORKGROUP}')
-        
-        # Wait for workgroup to be available
-        print('Waiting for workgroup to be available...')
-        max_attempts = 30
-        for attempt in range(max_attempts):
-            try:
-                workgroup_response = aws.redshift_client.get_workgroup(workgroupName=REDSHIFT_WORKGROUP)
-                status = workgroup_response['workgroup']['status']
-                if status == 'AVAILABLE':
-                    print(f'Workgroup {REDSHIFT_WORKGROUP} is now available')
-                    return workgroup_response['workgroup']
-                else:
-                    print(f'Workgroup status: {status}, waiting...')
-                    time.sleep(10)
-            except Exception as e:
-                print(f'Error checking workgroup status: {str(e)}, retrying...')
-                time.sleep(10)
-        
-        print('Timeout waiting for workgroup, but proceeding...')
-        return response['workgroup']
-        
-    except Exception as e:
-        print(f'Error creating workgroup: {str(e)}')
-        raise
+            if aws.region == 'us-east-1':
+                aws.s3_client.create_bucket(Bucket=S3_BUCKET)
+            else:
+                aws.s3_client.create_bucket(
+                    Bucket=S3_BUCKET,
+                    CreateBucketConfiguration={'LocationConstraint': aws.region}
+                )
+            print(f'Created bucket {S3_BUCKET}')
+        except Exception as e:
+            print(f'Error creating bucket: {str(e)}')
+            raise
 
-# Create workgroup
-workgroup = create_redshift_workgroup()
-workgroup_arn = workgroup['workgroupArn']
-print(f"Workgroup ARN: {workgroup_arn}")
-
-
-# def create_s3_bucket():
-#     """Create S3 bucket for data staging"""
-#     try:
-#         s3_client.head_bucket(Bucket=S3_BUCKET)
-#         print(f'Bucket {S3_BUCKET} already exists')
-#     except:
-#         try:
-#             if region == 'us-east-1':
-#                 s3_client.create_bucket(Bucket=S3_BUCKET)
-#             else:
-#                 s3_client.create_bucket(
-#                     Bucket=S3_BUCKET,
-#                     CreateBucketConfiguration={'LocationConstraint': region}
-#                 )
-#             print(f'Created bucket {S3_BUCKET}')
-#         except Exception as e:
-#             print(f'Error creating bucket: {str(e)}')
-#             raise
-
-# # Create S3 bucket
-# create_s3_bucket()
+# Create S3 bucket
+create_s3_bucket()
 
 
 # def upload_sample_data():
