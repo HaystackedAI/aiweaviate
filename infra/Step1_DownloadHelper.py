@@ -1,13 +1,31 @@
 import os, requests
 
 ## Step 1: Download Amazon Bedrock Knowledge Bases helper
-url = "https://raw.githubusercontent.com/aws-samples/amazon-bedrock-samples/main/rag/knowledge-bases/features-examples/utils/structured_knowledge_base.py"
-target_path = "utils/structured_knowledge_base.py"
-os.makedirs(os.path.dirname(target_path), exist_ok=True)
-response = requests.get(url)
-with open(target_path, "w") as f:
+url_stru = "https://raw.githubusercontent.com/aws-samples/amazon-bedrock-samples/main/rag/knowledge-bases/features-examples/utils/structured_knowledge_base.py"
+url_unstru = "https://raw.githubusercontent.com/aws-samples/amazon-bedrock-samples/main/rag/knowledge-bases/features-examples/utils/knowledge_base.py"
+
+target_path_stru = "utils/structured_knowledge_base.py"
+target_path_unstru = "utils/knowledge_base.py"
+
+os.makedirs(os.path.dirname(target_path_stru), exist_ok=True)
+response = requests.get(url_stru)
+with open(target_path_stru, "w") as f:
     f.write(response.text)
-print(f"Downloaded structured KB utils to {target_path}")
+print(f"Downloaded structured KB utils to {target_path_stru}")
+
+os.makedirs(os.path.dirname(target_path_unstru), exist_ok=True)
+response = requests.get(url_unstru)
+with open(target_path_unstru, "w") as f:
+    f.write(response.text)
+print(f"Downloaded unstructured KB utils to {target_path_unstru}")
+
+
+
+# os.makedirs(os.path.dirname(target_path), exist_ok=True)
+# response = requests.get(url)
+# with open(target_path, "w") as f:
+#     f.write(response.text)
+# print(f"Downloaded Knowledge Bases utils to {target_path}")
 
 
 # from utils.structured_knowledge_base import BedrockStructuredKnowledgeBase
