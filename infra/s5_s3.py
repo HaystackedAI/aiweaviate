@@ -34,6 +34,20 @@ def create_s3_bucket():
 create_s3_bucket()
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # def upload_sample_data():
 #     """Upload sample CSV files to S3"""
 #     data_files = ['orders.csv', 'order_items.csv', 'payments.csv', 'reviews.csv']

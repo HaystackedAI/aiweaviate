@@ -1,6 +1,6 @@
 import time
 
-from step6_CreateKBwRedshift import structured_kb
+from infra.s6_kb_stru_Redshift import structured_kb
 from aws_redshift import run_redshift_statement
 
 # Extract the IAM role name from the ARN for database user creation
